@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>STUDY PURPOSE</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #007BFF;
+            --secondary-color: #6c757d;
+            --background-light: #ffffff;
+            --background-dark: #1e1e1e;
+            --text-light: #333333;
+            --text-dark: #ffffff;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #282c34, #3a3f47);
+            color: var(--text-light);
+            transition: all 0.3s ease-in-out;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: auto;
+            background: var(--background-light);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        h2 {
+            margin: 0;
+            color: var(--primary-color);
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+        }
+
+        .button {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .button:hover {
+            background: #0056b3;
+        }
+
+        .search-container {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .search-bar {
+            width: 70%;
+            padding: 12px 40px 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .search-bar:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .folder, .file {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            margin: 8px 0;
+            border-radius: 8px;
+            background: #f8f9fa;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .folder:hover, .file:hover {
+            background: #e9ecef;
+            transform: translateX(5px);
+        }
+
+        .folder-icon, .file-icon {
+            margin-right: 12px;
+            font-size: 1.2rem;
+        }
+
+        .file-details {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex: 1;
+        }
+
+        .file-name {
+            flex: 1;
+        }
+
+        .file-actions {
+            opacity: 0;
+            transition: opacity 0.2s ease;
+            display: flex;
+            gap: 10px;
+        }
+
+        .folder:hover .file-actions,
+        .file:hover .file-actions {
+            opacity: 1;
+        }
+
+        .favorite-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1.2rem;
+            color: #ffd700;
+            padding: 0 5px;
+        }
+
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            overflow-x: auto;
+            white-space: nowrap;
+        }
+
+        .breadcrumb-item {
+            color: var(--primary-color);
+            cursor: pointer;
+        }
+
+        .breadcrumb-item:hover {
+            text-decoration: underline;
+        }
+
+        .breadcrumb-separator {
+            margin: 0 8px;
+            color: var(--secondary-color);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+        }
+
+        .modal-content {
+            position: relative;
+            width: 90%;
+            height: 90%;
+            margin: 2% auto;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .close-btn {
+            position: absolute;
+            right: 15px;
+            top: 15px;
+            font-size: 24px;
+            color: white;
+            background: #dc3545;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+            z-index: 1001;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .file-viewer {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .loading-spinner {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .loading-spinner::after {
+            content: "";
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        #error-message {
+            display: none;
+            color: #dc3545;
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+
+            .header {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .controls {
+                width: 100%;
+                justify-content: space-between;
+            }
+
+            .file-actions {
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h2>Study Purpose</h2>
+            <div class="controls">
+                <button class="button" onclick="toggleView()">We</button>
+                <button class="button" onclick="toggleTheme()">WILL</button>
+                <button class="button" onclick="showFavorites()">STUDY</button>
+            </div>
+        </div>
+
+        <div class="breadcrumb" id="breadcrumb">
+            <span class="breadcrumb-item" onclick="navigateHome()">Home</span>
+        </div>
+
+        <div class="search-container">
+            <input type="text" class="search-bar" id="search" placeholder="Search for files or folders...">
+        </div>
+
+        <div id="error-message"></div>
+        <div id="loading-spinner" class="loading-spinner"></div>
+        <div id="fileList"></div>
+    </div>
+
+    <div id="fileViewerModal" class="modal">
+        <button class="close-btn" onclick="closeFileViewer()">×</button>
+        <div class="modal-content">
+            <iframe id="fileViewer" class="file-viewer"></iframe>
+        </div>
+    </div>
+
+    <script>
+        const folderId = "1aBPLdzPzOQg1zV7sxnWlBQ0jKEDoVlxP";
+        const apiKey = "AIzaSyBbKXB9Vr1E0s5qpgdkdq-VrqkbxZsNtbg";
+        let currentView = 'grid';
+        let favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
+        let fileHistory = [];
+        let currentPath = [];
+
+        async function fetchDriveFiles(folderId, container, path = []) {
+            document.getElementById("loading-spinner").style.display = 'block';
+            container.innerHTML = '';
+            
+            try {
+                const url = `https://www.googleapis.com/drive/v3/files?q='${folderId}'+in+parents&key=${apiKey}&fields=files(id,name,mimeType,modifiedTime,size)`;
+                const response = await fetch(url);
+                
+                if (!response.ok) {
+                    throw new Error('Failed to fetch files');
+                }
+                
+                const data = await response.json();
+                currentPath = path;
+                updateBreadcrumb(path);
+                
+                if (data.files && data.files.length > 0) {
+                    renderFiles(data.files, container);
+                } else {
+                    container.innerHTML = '<p>No files found in this folder</p>';
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showError('Error loading files. Please try again.');
+            } finally {
+                document.getElementById("loading-spinner").style.display = 'none';
+            }
+        }
+
+        function showError(message) {
+            const errorElement = document.getElementById('error-message');
+            errorElement.textContent = message;
+            errorElement.style.display = 'block';
+            setTimeout(() => {
+                errorElement.style.display = 'none';
+            }, 5000);
+        }
+
+        function renderFiles(files, container) {
+            files.sort((a, b) => {
+                if (a.mimeType === 'application/vnd.google-apps.folder' && b.mimeType !== 'application/vnd.google-apps.folder') return -1;
+                if (a.mimeType !== 'application/vnd.google-apps.folder' && b.mimeType === 'application/vnd.google-apps.folder') return 1;
+                return a.name.localeCompare(b.name);
+            });
+
+            files.forEach(file => {
+                const isFolder = file.mimeType === 'application/vnd.google-apps.folder';
+                const item = document.createElement('div');
+                item.className = isFolder ? 'folder' : 'file';
+                
+                const isFavorite = favorites.includes(file.id);
+                
+                item.innerHTML = `
+                    <span class="${isFolder ? 'folder-icon' : 'file-icon'}">${isFolder ? '📁' : '📄'}</span>
+                    <div class="file-details">
+                        <span class="file-name">${file.name}</span>
+                        <div class="file-actions">
+                            <button class="favorite-btn" onclick="toggleFavorite('${file.id}', event)">
+                                ${isFavorite ? '★' : '☆'}
+                            </button>
+                        </div>
+                    </div>
+                `;
+
+                item.addEventListener('click', (e) => {
+                    if (e.target.classList.contains('favorite-btn')) {
+                        return;
+                    }
+                    
+                    if (isFolder) {
+                        const newPath = [...currentPath, file.name];
+                        fileHistory.push({ id: file.id, name: file.name });
+                        fetchDriveFiles(file.id, container, newPath);
+                    } else {
+                        openFileViewer(file.id, file.name);
+                    }
+                });
+
+                container.appendChild(item);
+            });
+        }
+
+        function openFileViewer(fileId, fileName) {
+            const modal = document.getElementById('fileViewerModal');
+            const viewer = document.getElementById('fileViewer');
+            modal.style.display = 'block';
+            viewer.src = `https://drive.google.com/file/d/${fileId}/preview`;
+        }
+
+        function closeFileViewer() {
+            const modal = document.getElementById('fileViewerModal');
+            const viewer = document.getElementById('fileViewer');
+            modal.style.display = 'none';
+            viewer.src = '';
+        }
+
+        function toggleFavorite(fileId, event) {
+            event.stopPropagation();
+            const index = favorites.indexOf(fileId);
+            if (index === -1) {
+                favorites.push(fileId);
+            } else {
+                favorites.splice(index, 1);
+            }
+            localStorage.setItem('favorites', JSON.stringify(favorites));
+            fetchDriveFiles(currentFolder, document.getElementById('fileList'), currentPath);
+        }
+
+        function updateBreadcrumb(path) {
+            const breadcrumb = document.getElementById('breadcrumb');
+            breadcrumb.innerHTML = `
+                <span class="breadcrumb-item" onclick="navigateHome()">Home</span>
+                ${path.map((item, index) => `
+                    <span class="breadcrumb-separator">/</span>
+                    <span class="breadcrumb-item" onclick="navigateToPath(${index})">${item}</span>
+                `).join('')}
+            `;
+        }
+
+        function navigateHome() {
+            fileHistory = [];
+            currentPath = [];
+            fetchDriveFiles(folderId, document.getElementById('fileList'), []);
+        }
+
+        function navigateToPath(index) {
+            const targetHistory = fileHistory.slice(0, index + 1);
+            const targetId = targetHistory[targetHistory.length - 1].id;
+            fileHistory = targetHistory;
+            fetchDriveFiles(targetId, document.getElementById('fileList'), currentPath.slice(0, index + 1));
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeFileViewer();
+            }
+        });
+
+        document.getElementById('fileViewerModal').addEventListener('click', (e) => {
+            if (e.target.id === 'fileViewerModal') {
+                closeFileViewer();
+            }
+        });
+
+        document.getElementById('search').addEventListener('input', (e) => {
+            const searchTerm = e.target.value.toLowerCase();
+            const items = document.querySelectorAll('.folder, .file');
+            items.forEach(item => {
+                const fileName = item.querySelector('.file-name').textContent.toLowerCase();
+                item.style.display = fileName.includes(searchTerm) ? '' : 'none';
+            });
+        });
+
+        // Initialize the application
+        fetchDriveFiles(folderId, document.getElementById('fileList'), []);
+    </script>
+</body>
+</html>
